@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="خطة 30 يوم">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>خطة 30 يوم Power BI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2234;
+    --accent: #f59e0b; --text: #f1f5f9; --muted: #64748b;
+    --border: rgba(255,255,255,0.07);
+    --w1: #f59e0b; --w2: #8b5cf6; --w3: #10b981; --w4: #ef4444;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text);
+    min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: ''; position: fixed; top: -50%; right: -20%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%);
+    animation: pulse 8s ease-in-out infinite; pointer-events: none; z-index: 0;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
+  .header {
+    padding: 52px 20px 0; position: sticky; top: 0; z-index: 100;
+    background: linear-gradient(to bottom, var(--bg) 85%, transparent); padding-bottom: 14px;
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .app-title {
+    font-size: 20px; font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), #fcd34d);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .progress-badge {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 13px; font-size: 13px; font-weight: 600; color: var(--accent);
+  }
+  .overall-progress {
+    background: var(--surface); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 14px; border: 1px solid var(--border);
+  }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 9px; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 10px; height: 7px; overflow: hidden; }
+  .progress-bar-fill {
+    height: 100%; border-radius: 10px;
+    background: linear-gradient(90deg, var(--accent), #fcd34d);
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); width: 0%;
+  }
+  .week-tabs { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .week-tabs::-webkit-scrollbar { display: none; }
+  .week-tab {
+    flex-shrink: 0; padding: 7px 15px; border-radius: 11px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s;
+    background: var(--surface); color: var(--muted); white-space: nowrap; user-select: none;
+  }
+  .week-tab.active { color: #0a0e1a; }
+  .week-tab[data-week="1"].active { background: var(--w1); }
+  .week-tab[data-week="2"].active { background: var(--w2); }
+  .week-tab[data-week="3"].active { background: var(--w3); }
+  .week-tab[data-week="4"].active { background: var(--w4); }
+
+  .content { padding: 0 14px 90px; }
+  .week-section { display: none; }
+  .week-section.visible { display: block; }
+  .week-header { padding: 18px 0 14px; }
+  .week-title { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
+  .week-title span { opacity: 0.55; font-weight: 400; font-size: 13px; margin-right: 7px; }
+  .week-subtitle { font-size: 12px; color: var(--muted); }
+  .week-progress-bar { margin-top: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; height: 4px; overflow: hidden; }
+  .week-progress-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+  [data-week="1"] .week-progress-fill { background: var(--w1); }
+  [data-week="2"] .week-progress-fill { background: var(--w2); }
+  [data-week="3"] .week-progress-fill { background: var(--w3); }
+  [data-week="4"] .week-progress-fill { background: var(--w4); }
+
+  .task-card {
+    background: var(--surface); border-radius: 13px; padding: 14px; margin-bottom: 9px;
+    border: 1.5px solid var(--border); display: flex; gap: 12px; align-items: flex-start;
+    cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; user-select: none;
+  }
+  .task-card::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; }
+  .week-section[data-week="1"] .task-card::before { background: var(--w1); }
+  .week-section[data-week="2"] .task-card::before { background: var(--w2); }
+  .week-section[data-week="3"] .task-card::before { background: var(--w3); }
+  .week-section[data-week="4"] .task-card::before { background: var(--w4); }
+  .task-card:active { transform: scale(0.97); opacity: 0.85; }
+  .task-card.done { opacity: 0.45; }
+  .task-card.done .task-title { text-decoration: line-through; color: var(--muted); }
+
+  .checkbox {
+    width: 23px; height: 23px; border-radius: 7px; border: 2px solid rgba(255,255,255,0.18);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    margin-top: 1px; transition: all 0.2s;
+  }
+  .task-card.done .checkbox { border-color: transparent; }
+  .week-section[data-week="1"] .task-card.done .checkbox { background: var(--w1); }
+  .week-section[data-week="2"] .task-card.done .checkbox { background: var(--w2); }
+  .week-section[data-week="3"] .task-card.done .checkbox { background: var(--w3); }
+  .week-section[data-week="4"] .task-card.done .checkbox { background: var(--w4); }
+  .checkbox svg { display: none; }
+  .task-card.done .checkbox svg { display: block; }
+
+  .task-info { flex: 1; min-width: 0; }
+  .task-day { font-size: 10px; font-weight: 600; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
+  .task-title { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 4px; color: var(--text); transition: color 0.2s; }
+  .task-note { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(10,14,26,0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border); padding: 10px 20px 22px;
+    display: flex; justify-content: space-around; z-index: 200;
+  }
+  .nav-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    color: var(--muted); font-size: 10px; font-weight: 600; cursor: pointer;
+    transition: color 0.2s; background: none; border: none;
+    padding: 5px 20px; border-radius: 10px; font-family: 'Cairo', sans-serif;
+  }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn svg { width: 21px; height: 21px; }
+
+  .stats-view { display: none; padding: 16px 0 20px; }
+  .stats-view.visible { display: block; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 18px; }
+  .stat-card { background: var(--surface); border-radius: 13px; padding: 16px; border: 1px solid var(--border); text-align: center; }
+  .stat-num { font-size: 30px; font-weight: 900; line-height: 1; margin-bottom: 5px; }
+  .stat-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .week-stat {
+    background: var(--surface); border-radius: 13px; padding: 14px;
+    border: 1px solid var(--border); margin-bottom: 9px; display: flex; align-items: center; gap: 12px;
+  }
+  .week-stat-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .week-stat-info { flex: 1; }
+  .week-stat-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .week-stat-bar { background: rgba(255,255,255,0.06); border-radius: 5px; height: 5px; overflow: hidden; }
+  .week-stat-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+  .week-stat-pct { font-size: 12px; font-weight: 700; color: var(--muted); }
+  .tips-section {
+    background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));
+    border: 1px solid rgba(245,158,11,0.2); border-radius: 14px; padding: 16px; margin-top: 6px;
+  }
+  .tips-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+  .tip-item { font-size: 12px; color: #d1d5db; line-height: 1.6; margin-bottom: 7px; padding-right: 14px; position: relative; }
+  .tip-item::before { content: '→'; position: absolute; right: 0; color: var(--accent); }
+
+  #installBanner {
+    position: fixed; bottom: 75px; left: 14px; right: 14px;
+    background: linear-gradient(135deg, #1a2234, #111827);
+    border: 1px solid rgba(245,158,11,0.35); border-radius: 14px;
+    padding: 14px 16px; z-index: 300;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: slideUp 0.4s ease;
+  }
+  #installBanner.hidden { display: none; }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .install-text { flex: 1; font-size: 13px; line-height: 1.4; }
+  .install-text strong { color: var(--accent); display: block; margin-bottom: 2px; font-size: 14px; }
+  .install-btn {
+    background: var(--accent); color: #0a0e1a; border: none; border-radius: 9px;
+    padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: 'Cairo', sans-serif; white-space: nowrap;
+  }
+  .install-close { color: var(--muted); background: none; border: none; font-size: 18px; cursor: pointer; padding: 2px 6px; }
+</style>
+</head>
+<body>
+
+<div id="installBanner" class="hidden">
+  <div class="install-text">
+    <strong>📲 نزّلي الأبلكيشن!</strong>
+    اضغطي عشان يتحط على الشاشة الرئيسية
+  </div>
+  <button class="install-btn" onclick="installApp()">تنزيل</button>
+  <button class="install-close" onclick="closeBanner()">✕</button>
+</div>
+
+<div class="header">
+  <div class="header-top">
+    <div class="app-title">⚡ خطة 30 يوم</div>
+    <div class="progress-badge" id="overallBadge">0 / 30</div>
+  </div>
+  <div class="overall-progress">
+    <div class="progress-label"><span>التقدم الكلي</span><span id="overallPct">0%</span></div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="overallFill"></div></div>
+  </div>
+  <div class="week-tabs" id="weekTabs">
+    <div class="week-tab active" data-week="1" onclick="switchWeek(1)">الأسبوع 1</div>
+    <div class="week-tab" data-week="2" onclick="switchWeek(2)">الأسبوع 2</div>
+    <div class="week-tab" data-week="3" onclick="switchWeek(3)">الأسبوع 3</div>
+    <div class="week-tab" data-week="4" onclick="switchWeek(4)">الأسبوع 4</div>
+  </div>
+</div>
+
+<div class="content">
+  <div id="tasksView">
+
+    <div class="week-section visible" data-week="1" id="week1">
+      <div class="week-header">
+        <div class="week-title" style="color:var(--w1)">مشروع 1 <span>Dashboard أساسي</span></div>
+        <div class="week-subtitle">الأيام 1–7 | بناء أول Dashboard</div>
+        <div class="week-progress-bar"><div class="week-progress-fill" id="wp1"></div></div>
+      </div>
+      <div class="task-card" id="t1" onclick="toggle('t1')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 1</div><div class="task-title">اختار المشروع + المجال</div><div class="task-note">كل شخص يحدد المجال اللي يحب يشتغل عليه (FinTech / HR / Sales / Education)</div></div></div>
+      <div class="task-card" id="t2" onclick="toggle('t2')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 2</div><div class="task-title">جمع البيانات اللازمة</div><div class="task-note">من Kaggle أو مصادر مفتوحة أو Mock Data</div></div></div>
+      <div class="task-card" id="t3" onclick="toggle('t3')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 3</div><div class="task-title">تنظيف البيانات في Power BI</div><div class="task-note">Format Columns, حذف Nulls, تحويل التواريخ</div></div></div>
+      <div class="task-card" id="t4" onclick="toggle('t4')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 4</div><div class="task-title">إنشاء أول Visualization أساسي</div><div class="task-note">Bar Chart, Line Chart أو أي Chart أساسي حسب المجال</div></div></div>
+      <div class="task-card" id="t5" onclick="toggle('t5')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 5</div><div class="task-title">إضافة Charts إضافية</div><div class="task-note">Pie Chart, Table, KPIs حسب البيانات</div></div></div>
+      <div class="task-card" id="t6" onclick="toggle('t6')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 6</div><div class="task-title">كتابة Insights</div><div class="task-note">نصوص قصيرة توضح أهم النتائج لكل Chart</div></div></div>
+      <div class="task-card" id="t7" onclick="toggle('t7')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 7</div><div class="task-title">مراجعة المشروع الأول</div><div class="task-note">Screenshots + PDF Portfolio جاهز</div></div></div>
+    </div>
+
+    <div class="week-section" data-week="2" id="week2">
+      <div class="week-header">
+        <div class="week-title" style="color:var(--w2)">مشروع 2 <span>Dashboard متقدم</span></div>
+        <div class="week-subtitle">الأيام 8–14 | تعمق أكتر في البيانات</div>
+        <div class="week-progress-bar"><div class="week-progress-fill" id="wp2"></div></div>
+      </div>
+      <div class="task-card" id="t8" onclick="toggle('t8')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 8</div><div class="task-title">اختار المشروع الثاني</div><div class="task-note">نفس المجال أو مجال مختلف حسب رغبة كل شخص</div></div></div>
+      <div class="task-card" id="t9" onclick="toggle('t9')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 9</div><div class="task-title">جمع البيانات</div><div class="task-note">Dataset جاهز أو Mock Data</div></div></div>
+      <div class="task-card" id="t10" onclick="toggle('t10')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 10</div><div class="task-title">تنظيف البيانات</div><div class="task-note">Filter / Format / Calculated Columns</div></div></div>
+      <div class="task-card" id="t11" onclick="toggle('t11')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 11</div><div class="task-title">إنشاء Visualizations أساسية</div><div class="task-note">Trend Analysis, KPI Cards</div></div></div>
+      <div class="task-card" id="t12" onclick="toggle('t12')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 12</div><div class="task-title">Charts إضافية</div><div class="task-note">Interactive Filters, Comparison Charts</div></div></div>
+      <div class="task-card" id="t13" onclick="toggle('t13')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 13</div><div class="task-title">كتابة Insights</div><div class="task-note">توضيح النتائج + KPIs</div></div></div>
+      <div class="task-card" id="t14" onclick="toggle('t14')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 14</div><div class="task-title">مراجعة المشروع</div><div class="task-note">Screenshots + PDF Portfolio جاهز</div></div></div>
+    </div>
+
+    <div class="week-section" data-week="3" id="week3">
+      <div class="week-header">
+        <div class="week-title" style="color:var(--w3)">Portfolio & Profile <span>تجهيز الحضور</span></div>
+        <div class="week-subtitle">الأيام 15–21 | اظهر شغلك للعالم</div>
+        <div class="week-progress-bar"><div class="week-progress-fill" id="wp3"></div></div>
+      </div>
+      <div class="task-card" id="t15" onclick="toggle('t15')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 15</div><div class="task-title">إنشاء حساب Upwork / Mostaqel / LinkedIn</div><div class="task-note">إضافة صورة وSkills: Power BI, Data Analysis</div></div></div>
+      <div class="task-card" id="t16" onclick="toggle('t16')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 16</div><div class="task-title">رفع مشاريع Portfolio</div><div class="task-note">PDF + Screenshots</div></div></div>
+      <div class="task-card" id="t17" onclick="toggle('t17')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 17</div><div class="task-title">تسجيل فيديو قصير لكل Dashboard</div><div class="task-note">1–2 دقيقة تشرح أهم KPIs وInsights</div></div></div>
+      <div class="task-card" id="t18" onclick="toggle('t18')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 18</div><div class="task-title">كتابة وصف البروفايل</div><div class="task-note">عنوان جذاب: "Power BI Dashboards for [المجال]"</div></div></div>
+      <div class="task-card" id="t19" onclick="toggle('t19')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 19</div><div class="task-title">تجهيز Gig / Packages</div><div class="task-note">3 باقات: Basic, Standard, Premium</div></div></div>
+      <div class="task-card" id="t20" onclick="toggle('t20')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 20</div><div class="task-title">البحث عن المشاريع المناسبة</div><div class="task-note">Upwork, Mostaqel, LinkedIn Groups</div></div></div>
+      <div class="task-card" id="t21" onclick="toggle('t21')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 21</div><div class="task-title">إرسال أول 3 Proposals مخصصة</div><div class="task-note">نص لكل Proposal يوضح القيمة + Screenshot</div></div></div>
+    </div>
+
+    <div class="week-section" data-week="4" id="week4">
+      <div class="week-header">
+        <div class="week-title" style="color:var(--w4)">أول عميل 🎯 <span>جذب ورفع السعر</span></div>
+        <div class="week-subtitle">الأيام 22–30 | لحظة الحقيقة</div>
+        <div class="week-progress-bar"><div class="week-progress-fill" id="wp4"></div></div>
+      </div>
+      <div class="task-card" id="t22" onclick="toggle('t22')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 22</div><div class="task-title">متابعة الردود على Proposals</div><div class="task-note">Reminder خفيف للعملاء المهتمين</div></div></div>
+      <div class="task-card" id="t23" onclick="toggle('t23')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 23</div><div class="task-title">إرسال Follow-up</div><div class="task-note">تأكيد الاهتمام + عرض Portfolio</div></div></div>
+      <div class="task-card" id="t24" onclick="toggle('t24')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 24</div><div class="task-title">تحسين Portfolio</div><div class="task-note">إضافة Insights أو تحسين Visuals</div></div></div>
+      <div class="task-card" id="t25" onclick="toggle('t25')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 25</div><div class="task-title">إرسال 3–4 Proposals جديدة يومياً</div><div class="task-note">لكل مشروع جديد على المنصات</div></div></div>
+      <div class="task-card" id="t26" onclick="toggle('t26')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 26</div><div class="task-title">مشاركة مشاريعك على LinkedIn / Twitter</div><div class="task-note">هتزيد فرص الحصول على أول عميل</div></div></div>
+      <div class="task-card" id="t27" onclick="toggle('t27')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 27</div><div class="task-title">تجهيز باقات Premium</div><div class="task-note">Dashboards + Predictive Analysis + Recommendations</div></div></div>
+      <div class="task-card" id="t28" onclick="toggle('t28')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 28</div><div class="task-title">تسجيل فيديو توضيحي لأفضل Dashboard</div><div class="task-note">رفعه على Portfolio وLinkedIn</div></div></div>
+      <div class="task-card" id="t29" onclick="toggle('t29')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 29</div><div class="task-title">متابعة العملاء المتفاعلين</div><div class="task-note">رسائل شخصية لكل Lead</div></div></div>
+      <div class="task-card" id="t30" onclick="toggle('t30')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 30</div><div class="task-title">🏆 مراجعة أعمال الشهر</div><div class="task-note">تحديد خطة الشهر القادم لرفع السعر وجذب عملاء أكثر</div></div></div>
+    </div>
+  </div>
+
+  <div id="statsView" class="stats-view">
+    <div style="font-size:17px;font-weight:700;margin-bottom:14px;padding-top:6px;">📊 إحصائياتك</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num" id="sDone" style="color:var(--accent3)">0</div><div class="stat-label">مهمة مكتملة ✅</div></div>
+      <div class="stat-card"><div class="stat-num" id="sRemain" style="color:var(--accent)">30</div><div class="stat-label">متبقية 🔥</div></div>
+    </div>
+    <div class="week-stat"><div class="week-stat-icon" style="background:rgba(245,158,11,0.15)">📈</div><div class="week-stat-info"><div class="week-stat-name" style="color:var(--w1)">الأسبوع 1 – Dashboard أساسي</div><div class="week-stat-bar"><div class="week-stat-fill" id="ws1" style="background:var(--w1)"></div></div></div><div class="week-stat-pct" id="wsp1">0%</div></div>
+    <div class="week-stat"><div class="week-stat-icon" style="background:rgba(139,92,246,0.15)">🚀</div><div class="week-stat-info"><div class="week-stat-name" style="color:var(--w2)">الأسبوع 2 – Dashboard متقدم</div><div class="week-stat-bar"><div class="week-stat-fill" id="ws2" style="background:var(--w2)"></div></div></div><div class="week-stat-pct" id="wsp2">0%</div></div>
+    <div class="week-stat"><div class="week-stat-icon" style="background:rgba(16,185,129,0.15)">💼</div><div class="week-stat-info"><div class="week-stat-name" style="color:var(--w3)">الأسبوع 3 – Portfolio & Profile</div><div class="week-stat-bar"><div class="week-stat-fill" id="ws3" style="background:var(--w3)"></div></div></div><div class="week-stat-pct" id="wsp3">0%</div></div>
+    <div class="week-stat"><div class="week-stat-icon" style="background:rgba(239,68,68,0.15)">🎯</div><div class="week-stat-info"><div class="week-stat-name" style="color:var(--w4)">الأسبوع 4 – جذب أول عميل</div><div class="week-stat-bar"><div class="week-stat-fill" id="ws4" style="background:var(--w4)"></div></div></div><div class="week-stat-pct" id="wsp4">0%</div></div>
+    <div class="tips-section">
+      <div class="tips-title">💡 نصايح مهمة</div>
+      <div class="tip-item">كل Dashboard لازم يعطي Insight عملي وقابل للقرار</div>
+      <div class="tip-item">Proposals لازم تكون مخصصة لكل عميل ومش كوبي-باستة</div>
+      <div class="tip-item">مشاركة مشاريعك على LinkedIn مهم جدًا</div>
+      <div class="tip-item">Data Sources: Kaggle, Microsoft Sample Data, Mock Data</div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn active" id="navTasks" onclick="switchView('tasks')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+    المهام
+  </button>
+  <button class="nav-btn" id="navStats" onclick="switchView('stats')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    إحصائيات
+  </button>
+</div>
+
+<script>
+  // PWA Install prompt
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installBanner').classList.remove('hidden');
+  });
+  window.addEventListener('appinstalled', () => { closeBanner(); });
+
+  function installApp() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; closeBanner(); });
+    }
+  }
+  function closeBanner() { document.getElementById('installBanner').classList.add('hidden'); }
+
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').then(r => console.log('SW registered')).catch(e => console.log('SW error', e));
+    });
+  }
+
+  // App logic
+  const STORAGE_KEY = 'pbi30days_v2';
+  const weekTasks = { 1:[1,2,3,4,5,6,7], 2:[8,9,10,11,12,13,14], 3:[15,16,17,18,19,20,21], 4:[22,23,24,25,26,27,28,29,30] };
+  let done = {};
+
+  function load() {
+    try { done = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { done = {}; }
+    for (let i=1; i<=30; i++) { if (done[i]) document.getElementById('t'+i)?.classList.add('done'); }
+    updateProgress();
+  }
+
+  function toggle(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('done');
+    done[parseInt(id.replace('t',''))] = card.classList.contains('done');
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(done));
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const completed = Object.values(done).filter(Boolean).length;
+    document.getElementById('overallBadge').textContent = completed + ' / 30';
+    const pct = Math.round(completed/30*100);
+    document.getElementById('overallPct').textContent = pct + '%';
+    document.getElementById('overallFill').style.width = pct + '%';
+    [1,2,3,4].forEach(w => {
+      const tasks = weekTasks[w];
+      const d = tasks.filter(n => done[n]).length;
+      const p = Math.round(d/tasks.length*100);
+      document.getElementById('wp'+w).style.width = p + '%';
+      document.getElementById('ws'+w).style.width = p + '%';
+      document.getElementById('wsp'+w).textContent = p + '%';
+    });
+    document.getElementById('sDone').textContent = completed;
+    document.getElementById('sRemain').textContent = 30 - completed;
+  }
+
+  function switchWeek(w) {
+    document.querySelectorAll('.week-section').forEach(s => s.classList.remove('visible'));
+    document.getElementById('week'+w).classList.add('visible');
+    document.querySelectorAll('.week-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.week-tab[data-week="'+w+'"]').classList.add('active');
+  }
+
+  function switchView(v) {
+    document.getElementById('tasksView').style.display = v==='tasks' ? 'block' : 'none';
+    const sv = document.getElementById('statsView');
+    v==='stats' ? sv.classList.add('visible') : sv.classList.remove('visible');
+    document.getElementById('weekTabs').style.display = v==='tasks' ? 'flex' : 'none';
+    document.getElementById('navTasks').classList.toggle('active', v==='tasks');
+    document.getElementById('navStats').classList.toggle('active', v==='stats');
+  }
+
+  load();
+</script>
+</body>
+</html>
