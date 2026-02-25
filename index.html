@@ -1,385 +1,1631 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0a0e1a">
+<meta name="theme-color" content="#0F172A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="خطة 30 يوم">
+<meta name="apple-mobile-web-app-title" content="BI30">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>خطة 30 يوم Power BI</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<title>BI30 — From Dashboard to Your First Freelance Client</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0e1a; --surface: #111827; --surface2: #1a2234;
-    --accent: #f59e0b; --text: #f1f5f9; --muted: #64748b;
-    --border: rgba(255,255,255,0.07);
-    --w1: #f59e0b; --w2: #8b5cf6; --w3: #10b981; --w4: #ef4444;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text);
-    min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased;
-  }
-  body::before {
-    content: ''; position: fixed; top: -50%; right: -20%;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%);
-    animation: pulse 8s ease-in-out infinite; pointer-events: none; z-index: 0;
-  }
-  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+/* ══════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════ */
+:root {
+  --bg:        #0F172A;
+  --surface:   #1E293B;
+  --surface2:  #263347;
+  --surface3:  #2D3D55;
+  --accent:    #2563EB;
+  --accent-lt: #3B82F6;
+  --teal:      #14B8A6;
+  --teal-lt:   #2DD4BF;
+  --text:      #F1F5F9;
+  --text-dim:  #94A3B8;
+  --text-muted:#64748B;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --w1: #3B82F6;
+  --w2: #A855F7;
+  --w3: #14B8A6;
+  --w4: #F97316;
+  --radius-sm: 10px;
+  --radius:    14px;
+  --radius-lg: 20px;
+  --shadow:    0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.55);
+}
 
-  .header {
-    padding: 52px 20px 0; position: sticky; top: 0; z-index: 100;
-    background: linear-gradient(to bottom, var(--bg) 85%, transparent); padding-bottom: 14px;
-  }
-  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-  .app-title {
-    font-size: 20px; font-weight: 900;
-    background: linear-gradient(135deg, var(--accent), #fcd34d);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
-  .progress-badge {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 20px; padding: 5px 13px; font-size: 13px; font-weight: 600; color: var(--accent);
-  }
-  .overall-progress {
-    background: var(--surface); border-radius: 14px;
-    padding: 14px 16px; margin-bottom: 14px; border: 1px solid var(--border);
-  }
-  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 9px; }
-  .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 10px; height: 7px; overflow: hidden; }
-  .progress-bar-fill {
-    height: 100%; border-radius: 10px;
-    background: linear-gradient(90deg, var(--accent), #fcd34d);
-    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); width: 0%;
-  }
-  .week-tabs { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-  .week-tabs::-webkit-scrollbar { display: none; }
-  .week-tab {
-    flex-shrink: 0; padding: 7px 15px; border-radius: 11px; font-size: 13px; font-weight: 600;
-    cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s;
-    background: var(--surface); color: var(--muted); white-space: nowrap; user-select: none;
-  }
-  .week-tab.active { color: #0a0e1a; }
-  .week-tab[data-week="1"].active { background: var(--w1); }
-  .week-tab[data-week="2"].active { background: var(--w2); }
-  .week-tab[data-week="3"].active { background: var(--w3); }
-  .week-tab[data-week="4"].active { background: var(--w4); }
+/* ══════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════ */
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  .content { padding: 0 14px 90px; }
-  .week-section { display: none; }
-  .week-section.visible { display: block; }
-  .week-header { padding: 18px 0 14px; }
-  .week-title { font-size: 17px; font-weight: 700; margin-bottom: 3px; }
-  .week-title span { opacity: 0.55; font-weight: 400; font-size: 13px; margin-right: 7px; }
-  .week-subtitle { font-size: 12px; color: var(--muted); }
-  .week-progress-bar { margin-top: 10px; background: rgba(255,255,255,0.06); border-radius: 6px; height: 4px; overflow: hidden; }
-  .week-progress-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
-  [data-week="1"] .week-progress-fill { background: var(--w1); }
-  [data-week="2"] .week-progress-fill { background: var(--w2); }
-  [data-week="3"] .week-progress-fill { background: var(--w3); }
-  [data-week="4"] .week-progress-fill { background: var(--w4); }
+/* Subtle grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(37,99,235,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none; z-index: 0;
+}
 
-  .task-card {
-    background: var(--surface); border-radius: 13px; padding: 14px; margin-bottom: 9px;
-    border: 1.5px solid var(--border); display: flex; gap: 12px; align-items: flex-start;
-    cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; user-select: none;
-  }
-  .task-card::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; }
-  .week-section[data-week="1"] .task-card::before { background: var(--w1); }
-  .week-section[data-week="2"] .task-card::before { background: var(--w2); }
-  .week-section[data-week="3"] .task-card::before { background: var(--w3); }
-  .week-section[data-week="4"] .task-card::before { background: var(--w4); }
-  .task-card:active { transform: scale(0.97); opacity: 0.85; }
-  .task-card.done { opacity: 0.45; }
-  .task-card.done .task-title { text-decoration: line-through; color: var(--muted); }
+/* Ambient glow */
+body::after {
+  content: '';
+  position: fixed;
+  top: -30%; left: -10%;
+  width: 70vw; height: 70vw;
+  background: radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+  animation: ambientPulse 10s ease-in-out infinite;
+}
+@keyframes ambientPulse {
+  0%,100%{ opacity:1; transform:scale(1); }
+  50%{ opacity:0.6; transform:scale(1.15); }
+}
 
-  .checkbox {
-    width: 23px; height: 23px; border-radius: 7px; border: 2px solid rgba(255,255,255,0.18);
-    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    margin-top: 1px; transition: all 0.2s;
-  }
-  .task-card.done .checkbox { border-color: transparent; }
-  .week-section[data-week="1"] .task-card.done .checkbox { background: var(--w1); }
-  .week-section[data-week="2"] .task-card.done .checkbox { background: var(--w2); }
-  .week-section[data-week="3"] .task-card.done .checkbox { background: var(--w3); }
-  .week-section[data-week="4"] .task-card.done .checkbox { background: var(--w4); }
-  .checkbox svg { display: none; }
-  .task-card.done .checkbox svg { display: block; }
+/* ══════════════════════════════════════════
+   VIEWS CONTAINER
+══════════════════════════════════════════ */
+.view { display: none; position: relative; z-index: 1; }
+.view.active { display: block; }
 
-  .task-info { flex: 1; min-width: 0; }
-  .task-day { font-size: 10px; font-weight: 600; color: var(--muted); margin-bottom: 3px; text-transform: uppercase; }
-  .task-title { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 4px; color: var(--text); transition: color 0.2s; }
-  .task-note { font-size: 11px; color: var(--muted); line-height: 1.5; }
+/* ══════════════════════════════════════════
+   ── HOME VIEW ──
+══════════════════════════════════════════ */
+.home-view {
+  padding: 0 0 90px;
+  min-height: 100vh;
+}
 
-  .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(10,14,26,0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border); padding: 10px 20px 22px;
-    display: flex; justify-content: space-around; z-index: 200;
-  }
-  .nav-btn {
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    color: var(--muted); font-size: 10px; font-weight: 600; cursor: pointer;
-    transition: color 0.2s; background: none; border: none;
-    padding: 5px 20px; border-radius: 10px; font-family: 'Cairo', sans-serif;
-  }
-  .nav-btn.active { color: var(--accent); }
-  .nav-btn svg { width: 21px; height: 21px; }
+/* ── Logo Hero Section ── */
+.hero-section {
+  padding: 52px 20px 24px;
+  text-align: center;
+  position: relative;
+}
+.hero-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 80%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+}
 
-  .stats-view { display: none; padding: 16px 0 20px; }
-  .stats-view.visible { display: block; }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 18px; }
-  .stat-card { background: var(--surface); border-radius: 13px; padding: 16px; border: 1px solid var(--border); text-align: center; }
-  .stat-num { font-size: 30px; font-weight: 900; line-height: 1; margin-bottom: 5px; }
-  .stat-label { font-size: 11px; color: var(--muted); font-weight: 500; }
-  .week-stat {
-    background: var(--surface); border-radius: 13px; padding: 14px;
-    border: 1px solid var(--border); margin-bottom: 9px; display: flex; align-items: center; gap: 12px;
-  }
-  .week-stat-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
-  .week-stat-info { flex: 1; }
-  .week-stat-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-  .week-stat-bar { background: rgba(255,255,255,0.06); border-radius: 5px; height: 5px; overflow: hidden; }
-  .week-stat-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
-  .week-stat-pct { font-size: 12px; font-weight: 700; color: var(--muted); }
-  .tips-section {
-    background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));
-    border: 1px solid rgba(245,158,11,0.2); border-radius: 14px; padding: 16px; margin-top: 6px;
-  }
-  .tips-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
-  .tip-item { font-size: 12px; color: #d1d5db; line-height: 1.6; margin-bottom: 7px; padding-right: 14px; position: relative; }
-  .tip-item::before { content: '→'; position: absolute; right: 0; color: var(--accent); }
+/* BI30 Logo SVG */
+.logo-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; margin-bottom: 8px;
+}
+.logo-icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, #1D4ED8, #2563EB, #0EA5E9);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 1px rgba(37,99,235,0.4), 0 8px 32px rgba(37,99,235,0.3);
+  position: relative; overflow: hidden;
+}
+.logo-icon::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+}
+.logo-icon svg { width: 40px; height: 40px; position: relative; z-index: 1; }
 
-  #installBanner {
-    position: fixed; bottom: 75px; left: 14px; right: 14px;
-    background: linear-gradient(135deg, #1a2234, #111827);
-    border: 1px solid rgba(245,158,11,0.35); border-radius: 14px;
-    padding: 14px 16px; z-index: 300;
-    display: flex; align-items: center; gap: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    animation: slideUp 0.4s ease;
-  }
-  #installBanner.hidden { display: none; }
-  @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
-  .install-text { flex: 1; font-size: 13px; line-height: 1.4; }
-  .install-text strong { color: var(--accent); display: block; margin-bottom: 2px; font-size: 14px; }
-  .install-btn {
-    background: var(--accent); color: #0a0e1a; border: none; border-radius: 9px;
-    padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer;
-    font-family: 'Cairo', sans-serif; white-space: nowrap;
-  }
-  .install-close { color: var(--muted); background: none; border: none; font-size: 18px; cursor: pointer; padding: 2px 6px; }
+.logo-text {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #fff 30%, #93C5FD 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.logo-text span {
+  background: linear-gradient(135deg, #2563EB, #14B8A6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(37,99,235,0.12);
+  border: 1px solid rgba(37,99,235,0.25);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 10px; font-weight: 600;
+  color: var(--accent-lt); letter-spacing: 1.2px;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.hero-badge span.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-lt);
+  animation: blink 2s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero-slogan {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dim);
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* ── KPI Cards ── */
+.kpi-section {
+  padding: 24px 16px 0;
+}
+.kpi-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.kpi-section-label::before {
+  content: '';
+  width: 3px; height: 12px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.kpi-card.blue::before  { background: linear-gradient(90deg, var(--accent), var(--accent-lt)); }
+.kpi-card.teal::before  { background: linear-gradient(90deg, var(--teal), var(--teal-lt)); }
+.kpi-card.purple::before { background: linear-gradient(90deg, #A855F7, #C084FC); }
+.kpi-card.orange::before { background: linear-gradient(90deg, #F97316, #FB923C); }
+
+.kpi-card-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px; font-size: 15px;
+}
+.blue .kpi-card-icon   { background: rgba(37,99,235,0.15); }
+.teal .kpi-card-icon   { background: rgba(20,184,166,0.15); }
+.purple .kpi-card-icon { background: rgba(168,85,247,0.15); }
+.orange .kpi-card-icon { background: rgba(249,115,22,0.15); }
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 4px;
+  letter-spacing: -1px;
+}
+.blue .kpi-value   { color: #60A5FA; }
+.teal .kpi-value   { color: #2DD4BF; }
+.purple .kpi-value { color: #C084FC; }
+.orange .kpi-value { color: #FB923C; }
+
+.kpi-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Overall Progress Bar (large) */
+.overall-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin: 0 16px 16px;
+}
+.overall-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.overall-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.overall-pct {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--accent-lt);
+  letter-spacing: -0.5px;
+}
+.prog-track {
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-lt), #0EA5E9);
+  transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1);
+  width: 0%;
+  position: relative;
+}
+.prog-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 40px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+  animation: shimmer 2s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%,100%{opacity:0} 50%{opacity:1}
+}
+.prog-milestones {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ── Week Tabs + Tasks ── */
+.tasks-section { padding: 0 16px; }
+.week-tabs-wrap {
+  margin-bottom: 14px;
+}
+.week-tabs {
+  display: flex; gap: 7px;
+  overflow-x: auto; padding-bottom: 4px;
+  scrollbar-width: none;
+}
+.week-tabs::-webkit-scrollbar { display: none; }
+
+.week-tab {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: all 0.22s;
+  background: var(--surface);
+  color: var(--text-muted);
+  white-space: nowrap;
+  user-select: none;
+}
+.week-tab:hover { color: var(--text-dim); border-color: var(--border2); }
+.week-tab.active[data-week="1"] { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #93C5FD; }
+.week-tab.active[data-week="2"] { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); color: #C084FC; }
+.week-tab.active[data-week="3"] { background: rgba(20,184,166,0.15); border-color: rgba(20,184,166,0.4); color: #5EEAD4; }
+.week-tab.active[data-week="4"] { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.4); color: #FB923C; }
+
+.week-section { display: none; }
+.week-section.visible { display: block; }
+
+.week-header-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.week-header-accent {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+[data-week="1"] .week-header-accent { background: var(--w1); }
+[data-week="2"] .week-header-accent { background: var(--w2); }
+[data-week="3"] .week-header-accent { background: var(--w3); }
+[data-week="4"] .week-header-accent { background: var(--w4); }
+
+.week-header-inner { margin-left: 10px; }
+.week-header-row {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 3px;
+}
+.week-title {
+  font-size: 15px; font-weight: 700;
+  color: var(--text); line-height: 1.2;
+}
+.week-days-label {
+  font-size: 11px; color: var(--text-muted);
+  font-weight: 500; line-height: 1.3; text-align: right;
+}
+.week-pct-badge {
+  font-size: 13px; font-weight: 800;
+  margin-bottom: 4px;
+}
+[data-week="1"] .week-pct-badge { color: var(--w1); }
+[data-week="2"] .week-pct-badge { color: var(--w2); }
+[data-week="3"] .week-pct-badge { color: var(--w3); }
+[data-week="4"] .week-pct-badge { color: var(--w4); }
+
+.week-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+.week-prog-track {
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px; height: 4px; overflow: hidden;
+}
+.week-prog-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+[data-week="1"] .week-prog-fill { background: var(--w1); }
+[data-week="2"] .week-prog-fill { background: var(--w2); }
+[data-week="3"] .week-prog-fill { background: var(--w3); }
+[data-week="4"] .week-prog-fill { background: var(--w4); }
+
+/* ── Task Cards ── */
+.task-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  margin-bottom: 8px;
+  display: flex; gap: 12px; align-items: flex-start;
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative; overflow: hidden;
+  user-select: none;
+}
+.task-card:active { transform: scale(0.975); }
+.task-card:hover { border-color: var(--border2); background: var(--surface2); }
+.task-card.done { opacity: 0.45; }
+.task-card.done .task-title { text-decoration: line-through; color: var(--text-muted); }
+.task-card.done { border-color: rgba(255,255,255,0.04); }
+
+/* Side accent line */
+.task-card::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2.5px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.task-card.done::after { opacity: 1; }
+.week-section[data-week="1"] .task-card::after { background: var(--w1); }
+.week-section[data-week="2"] .task-card::after { background: var(--w2); }
+.week-section[data-week="3"] .task-card::after { background: var(--w3); }
+.week-section[data-week="4"] .task-card::after { background: var(--w4); }
+
+.checkbox {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+  transition: all 0.18s;
+}
+.task-card.done .checkbox { border-color: transparent; }
+.week-section[data-week="1"] .task-card.done .checkbox { background: var(--w1); }
+.week-section[data-week="2"] .task-card.done .checkbox { background: var(--w2); }
+.week-section[data-week="3"] .task-card.done .checkbox { background: var(--w3); }
+.week-section[data-week="4"] .task-card.done .checkbox { background: var(--w4); }
+.checkbox svg { display:none; }
+.task-card.done .checkbox svg { display:block; }
+
+.task-info { flex: 1; min-width: 0; }
+.task-day {
+  font-size: 10px; font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.task-title {
+  font-size: 13.5px; font-weight: 600;
+  line-height: 1.45; margin-bottom: 3px;
+  color: var(--text);
+  transition: color 0.2s;
+  font-family: 'Cairo', 'Inter', sans-serif;
+  direction: rtl; text-align: right;
+}
+.task-note {
+  font-size: 11px; color: var(--text-muted);
+  line-height: 1.5;
+  font-family: 'Cairo', 'Inter', sans-serif;
+  direction: rtl; text-align: right;
+}
+
+/* ══════════════════════════════════════════
+   ── ANALYTICS VIEW ──
+══════════════════════════════════════════ */
+.analytics-view {
+  padding: 52px 16px 90px;
+}
+
+.view-title {
+  font-size: 20px; font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px; letter-spacing: -0.5px;
+}
+.view-subtitle {
+  font-size: 12px; color: var(--text-muted);
+  font-weight: 500; margin-bottom: 22px;
+}
+
+/* Performance Score Card */
+.perf-score-card {
+  background: linear-gradient(135deg, #1D3461, #1E3A5F, #162032);
+  border: 1px solid rgba(37,99,235,0.3);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 14px;
+  position: relative; overflow: hidden;
+}
+.perf-score-card::before {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,0.15), transparent 70%);
+}
+.perf-score-top {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 16px;
+}
+.perf-score-label {
+  font-size: 11px; font-weight: 700;
+  color: rgba(147,197,253,0.8);
+  text-transform: uppercase; letter-spacing: 1.2px;
+}
+.perf-score-badge {
+  background: rgba(37,99,235,0.2);
+  border: 1px solid rgba(37,99,235,0.4);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 10px; font-weight: 600; color: #93C5FD;
+}
+.perf-score-num {
+  font-size: 48px; font-weight: 900;
+  color: #fff; letter-spacing: -2px; line-height: 1;
+  margin-bottom: 4px;
+}
+.perf-score-num span {
+  font-size: 18px; font-weight: 500;
+  color: rgba(255,255,255,0.5);
+}
+.perf-score-desc {
+  font-size: 12px; color: rgba(147,197,253,0.7);
+}
+
+/* Metric Row */
+.metric-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 9px; margin-bottom: 14px;
+}
+.metric-mini {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 13px 12px;
+  text-align: center;
+}
+.metric-mini-val {
+  font-size: 20px; font-weight: 800;
+  line-height: 1; margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+.metric-mini-val.blue { color: #60A5FA; }
+.metric-mini-val.teal { color: #2DD4BF; }
+.metric-mini-val.purple { color: #C084FC; }
+.metric-mini-lbl {
+  font-size: 10px; color: var(--text-muted);
+  font-weight: 500; line-height: 1.3;
+}
+
+/* Week breakdown */
+.section-header {
+  font-size: 12px; font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 10px;
+  margin-top: 18px;
+  display: flex; align-items: center; gap: 6px;
+}
+.section-header::before {
+  content: ''; width: 3px; height: 12px;
+  background: var(--accent); border-radius: 2px;
+}
+
+.week-breakdown {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.wb-row {
+  display: flex; align-items: center;
+  gap: 12px; padding: 13px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.wb-row:last-child { border-bottom: none; }
+.wb-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.wb-dot.w1 { background: var(--w1); }
+.wb-dot.w2 { background: var(--w2); }
+.wb-dot.w3 { background: var(--w3); }
+.wb-dot.w4 { background: var(--w4); }
+.wb-label { font-size: 12px; font-weight: 600; flex: 1; }
+.wb-bar-wrap {
+  flex: 2; background: rgba(255,255,255,0.06);
+  border-radius: 4px; height: 5px; overflow: hidden;
+}
+.wb-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+.wb-bar-fill.w1 { background: var(--w1); }
+.wb-bar-fill.w2 { background: var(--w2); }
+.wb-bar-fill.w3 { background: var(--w3); }
+.wb-bar-fill.w4 { background: var(--w4); }
+.wb-pct { font-size: 12px; font-weight: 700; color: var(--text-dim); min-width: 32px; text-align: right; }
+
+/* Tips */
+.tips-card {
+  background: linear-gradient(135deg, rgba(20,184,166,0.06), rgba(20,184,166,0.02));
+  border: 1px solid rgba(20,184,166,0.18);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-top: 4px;
+}
+.tips-title {
+  font-size: 12px; font-weight: 700;
+  color: var(--teal); margin-bottom: 10px;
+  text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 6px;
+}
+.tip-row {
+  display: flex; gap: 8px;
+  font-size: 12px; color: #CBD5E1;
+  line-height: 1.6; margin-bottom: 6px;
+  font-family: 'Cairo', 'Inter', sans-serif;
+  direction: rtl; text-align: right;
+}
+.tip-row::before {
+  content: '→';
+  color: var(--teal); flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════
+   ── ABOUT VIEW ──
+══════════════════════════════════════════ */
+.about-view {
+  padding: 52px 16px 90px;
+  min-height: 100vh;
+}
+
+/* Profile Header */
+.profile-card {
+  background: linear-gradient(135deg, #1E293B, #263347);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  margin-bottom: 14px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.profile-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--teal));
+}
+.profile-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--teal));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 900; color: #fff;
+  margin: 0 auto 14px;
+  border: 3px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 0 6px rgba(37,99,235,0.1);
+}
+.profile-name {
+  font-size: 20px; font-weight: 800;
+  color: var(--text); margin-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+.profile-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--accent-lt); margin-bottom: 12px;
+}
+.profile-bio {
+  font-size: 13px; color: var(--text-dim);
+  line-height: 1.7; max-width: 300px; margin: 0 auto 16px;
+}
+.profile-tags {
+  display: flex; flex-wrap: wrap;
+  gap: 6px; justify-content: center;
+}
+.profile-tag {
+  background: rgba(37,99,235,0.1);
+  border: 1px solid rgba(37,99,235,0.2);
+  border-radius: 20px; padding: 4px 10px;
+  font-size: 11px; font-weight: 600; color: #93C5FD;
+}
+
+/* Contact Buttons */
+.contact-section { margin-bottom: 14px; }
+.contact-btn {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 9px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  text-align: left;
+}
+.contact-btn:hover, .contact-btn:active {
+  border-color: var(--border2);
+  background: var(--surface2);
+  transform: translateX(2px);
+}
+.contact-btn-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 18px;
+}
+.linkedin-icon { background: rgba(10,102,194,0.2); }
+.github-icon   { background: rgba(110,118,129,0.2); }
+.phone-icon    { background: rgba(37,211,102,0.2); }
+.contact-btn-info { flex: 1; }
+.contact-btn-label {
+  font-size: 13px; font-weight: 700; margin-bottom: 1px;
+}
+.contact-btn-sub { font-size: 11px; color: var(--text-muted); }
+.contact-btn-arrow {
+  color: var(--text-muted); font-size: 16px;
+}
+
+/* CTA Button */
+.cta-btn {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--accent), #1D4ED8);
+  border: none; border-radius: var(--radius);
+  padding: 16px 24px;
+  font-size: 15px; font-weight: 700; color: #fff;
+  cursor: pointer; width: 100%;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.4);
+  text-decoration: none;
+  margin-bottom: 14px;
+}
+.cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(37,99,235,0.5); }
+.cta-btn:active { transform: translateY(0); }
+
+/* About footer note */
+.about-footer-note {
+  text-align: center;
+  font-size: 11px; color: var(--text-muted);
+  line-height: 1.6;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+
+/* ══════════════════════════════════════════
+   ── BOTTOM NAV ──
+══════════════════════════════════════════ */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(15,23,42,0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 10px 10px 22px;
+  display: flex; justify-content: space-around;
+  z-index: 200;
+}
+.nav-btn {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px; color: var(--text-muted);
+  font-size: 10px; font-weight: 600;
+  cursor: pointer; transition: color 0.2s;
+  background: none; border: none;
+  padding: 5px 18px; border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.3px;
+}
+.nav-btn.active { color: var(--accent-lt); }
+.nav-btn svg { width: 22px; height: 22px; }
+.nav-btn .nav-indicator {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--accent-lt);
+  margin-top: 1px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.nav-btn.active .nav-indicator { opacity: 1; }
+
+/* ══════════════════════════════════════════
+   ── FOOTER BRANDING ──
+══════════════════════════════════════════ */
+.footer-brand {
+  text-align: center;
+  padding: 12px 16px 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.footer-brand a { color: var(--text-muted); text-decoration: none; }
+.footer-brand a:hover { color: var(--text-dim); }
+.footer-watermark {
+  position: fixed;
+  bottom: 78px; right: 14px;
+  opacity: 0.07;
+  z-index: 100;
+  pointer-events: none;
+}
+.footer-watermark svg { width: 28px; height: 28px; }
+
+/* ══════════════════════════════════════════
+   ── INSTALL BANNER ──
+══════════════════════════════════════════ */
+#installBanner {
+  position: fixed; bottom: 75px; left: 12px; right: 12px;
+  background: linear-gradient(135deg, #1E293B, #263347);
+  border: 1px solid rgba(37,99,235,0.35);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  z-index: 300;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.35s ease;
+}
+#installBanner.hidden { display: none; }
+@keyframes slideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.install-text { flex: 1; font-size: 13px; line-height: 1.4; }
+.install-text strong { color: var(--accent-lt); display: block; margin-bottom: 2px; font-size: 13px; }
+.install-btn {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 8px;
+  padding: 8px 14px; font-size: 12px;
+  font-weight: 700; cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+.install-close {
+  color: var(--text-muted); background: none;
+  border: none; font-size: 18px; cursor: pointer; padding: 2px 6px;
+}
+
+/* ══════════════════════════════════════════
+   ── DAY 30 SUCCESS SCREEN ──
+══════════════════════════════════════════ */
+#successOverlay {
+  position: fixed; inset: 0; z-index: 1000;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 30%, #0F2957 0%, #0F172A 70%);
+  overflow-y: auto;
+}
+#successOverlay.show { display: flex; }
+
+/* particle stars */
+#successOverlay::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px),
+    radial-gradient(circle, rgba(37,99,235,0.5) 1px, transparent 1px);
+  background-size: 80px 80px, 120px 120px;
+  background-position: 0 0, 40px 40px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.success-inner {
+  max-width: 360px; width: 100%;
+  text-align: center; position: relative; z-index: 1;
+}
+.success-emblem {
+  width: 100px; height: 100px;
+  background: linear-gradient(135deg, #1D4ED8, #2563EB, #0EA5E9);
+  border-radius: 28px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px;
+  box-shadow:
+    0 0 0 8px rgba(37,99,235,0.15),
+    0 0 0 20px rgba(37,99,235,0.07),
+    0 20px 60px rgba(37,99,235,0.4);
+  animation: emblemPulse 3s ease-in-out infinite;
+}
+@keyframes emblemPulse {
+  0%,100%{ box-shadow: 0 0 0 8px rgba(37,99,235,0.15), 0 0 0 20px rgba(37,99,235,0.07), 0 20px 60px rgba(37,99,235,0.4); }
+  50%{ box-shadow: 0 0 0 12px rgba(37,99,235,0.2), 0 0 0 28px rgba(37,99,235,0.08), 0 24px 70px rgba(37,99,235,0.5); }
+}
+.success-emblem svg { width: 52px; height: 52px; }
+
+.success-tag {
+  display: inline-block;
+  background: rgba(37,99,235,0.15);
+  border: 1px solid rgba(37,99,235,0.35);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 10px; font-weight: 700;
+  color: #93C5FD; letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.success-title {
+  font-size: 32px; font-weight: 900;
+  color: #fff; letter-spacing: -1px;
+  line-height: 1.05; margin-bottom: 18px;
+}
+.success-title span {
+  background: linear-gradient(135deg, #60A5FA, #14B8A6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.success-message {
+  font-size: 14px; color: #94A3B8;
+  line-height: 1.8; margin-bottom: 32px;
+  font-weight: 400;
+}
+.success-message strong { color: #CBD5E1; font-weight: 600; }
+
+.success-stats {
+  display: flex; gap: 10px; margin-bottom: 32px;
+  justify-content: center;
+}
+.success-stat-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 14px 18px;
+  text-align: center; flex: 1;
+}
+.success-stat-val {
+  font-size: 24px; font-weight: 900;
+  color: #fff; letter-spacing: -1px;
+  margin-bottom: 3px;
+}
+.success-stat-lbl {
+  font-size: 10px; color: #64748B;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+}
+
+.success-btn-group {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 20px;
+}
+.success-btn-primary {
+  background: linear-gradient(135deg, var(--accent), #1D4ED8);
+  color: #fff; border: none; border-radius: var(--radius);
+  padding: 16px 24px; font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.5);
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.success-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(37,99,235,0.6); }
+
+.success-btn-secondary {
+  background: rgba(255,255,255,0.06);
+  color: #fff; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius);
+  padding: 14px 24px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.success-btn-secondary:hover { background: rgba(255,255,255,0.09); }
+
+.success-dismiss {
+  font-size: 12px; color: var(--text-muted);
+  cursor: pointer; background: none; border: none;
+  font-family: 'Inter', sans-serif;
+  padding: 8px;
+}
+.success-dismiss:hover { color: var(--text-dim); }
+
+/* ══════════════════════════════════════════
+   CAIRO FONT for Arabic task content
+══════════════════════════════════════════ */
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════
+     INSTALL BANNER
+═══════════════════════════════════════ -->
 <div id="installBanner" class="hidden">
   <div class="install-text">
-    <strong>📲 نزّلي الأبلكيشن!</strong>
-    اضغطي عشان يتحط على الشاشة الرئيسية
+    <strong>📲 Install BI30</strong>
+    Add to home screen for the full experience
   </div>
-  <button class="install-btn" onclick="installApp()">تنزيل</button>
+  <button class="install-btn" onclick="installApp()">Install</button>
   <button class="install-close" onclick="closeBanner()">✕</button>
 </div>
 
-<div class="header">
-  <div class="header-top">
-    <div class="app-title">⚡ خطة 30 يوم</div>
-    <div class="progress-badge" id="overallBadge">0 / 30</div>
-  </div>
-  <div class="overall-progress">
-    <div class="progress-label"><span>التقدم الكلي</span><span id="overallPct">0%</span></div>
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="overallFill"></div></div>
-  </div>
-  <div class="week-tabs" id="weekTabs">
-    <div class="week-tab active" data-week="1" onclick="switchWeek(1)">الأسبوع 1</div>
-    <div class="week-tab" data-week="2" onclick="switchWeek(2)">الأسبوع 2</div>
-    <div class="week-tab" data-week="3" onclick="switchWeek(3)">الأسبوع 3</div>
-    <div class="week-tab" data-week="4" onclick="switchWeek(4)">الأسبوع 4</div>
+<!-- ═══════════════════════════════════════
+     DAY 30 SUCCESS OVERLAY
+═══════════════════════════════════════ -->
+<div id="successOverlay">
+  <div class="success-inner">
+    <div class="success-emblem">
+      <!-- Trophy / checkmark SVG -->
+      <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M26 4L31.5 15.5L44 17L35 26L37.5 39L26 33L14.5 39L17 26L8 17L20.5 15.5L26 4Z" fill="white" fill-opacity="0.15" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M18 27L23 32L34 21" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="success-tag">Day 30 Complete</div>
+    <div class="success-title">Execution<br><span>Complete.</span></div>
+    <div class="success-message">
+      You now have the structure.<br>
+      <strong>Ready to build dashboards that attract real clients?</strong>
+    </div>
+
+    <div class="success-stats">
+      <div class="success-stat-box">
+        <div class="success-stat-val">30</div>
+        <div class="success-stat-lbl">Days Done</div>
+      </div>
+      <div class="success-stat-box">
+        <div class="success-stat-val">100%</div>
+        <div class="success-stat-lbl">Completed</div>
+      </div>
+      <div class="success-stat-box">
+        <div class="success-stat-val">4</div>
+        <div class="success-stat-lbl">Projects</div>
+      </div>
+    </div>
+
+    <div class="success-btn-group">
+      <a href="https://github.com/nadaali200136-sys" target="_blank" class="success-btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        View My Portfolio
+      </a>
+      <a href="https://www.linkedin.com/in/nada-ali-data" target="_blank" class="success-btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        Connect on LinkedIn
+      </a>
+    </div>
+
+    <button class="success-dismiss" onclick="dismissSuccess()">← Continue to App</button>
   </div>
 </div>
 
-<div class="content">
-  <div id="tasksView">
+<!-- ═══════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════ -->
 
-    <div class="week-section visible" data-week="1" id="week1">
-      <div class="week-header">
-        <div class="week-title" style="color:var(--w1)">مشروع 1 <span>Dashboard أساسي</span></div>
-        <div class="week-subtitle">الأيام 1–7 | بناء أول Dashboard</div>
-        <div class="week-progress-bar"><div class="week-progress-fill" id="wp1"></div></div>
+<!-- ── HOME / TASKS VIEW ── -->
+<div id="viewHome" class="view active">
+  <div class="home-view">
+
+    <!-- Hero -->
+    <div class="hero-section">
+      <div class="hero-badge"><span class="dot"></span>Power BI · 30-Day Program</div>
+      <div class="logo-wrap">
+        <div class="logo-icon">
+          <!-- BI30 Logo: bar chart inside rounded square -->
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Bar chart bars -->
+            <rect x="5" y="22" width="7" height="12" rx="1.5" fill="white" opacity="0.7"/>
+            <rect x="14" y="15" width="7" height="19" rx="1.5" fill="white" opacity="0.9"/>
+            <rect x="23" y="10" width="7" height="24" rx="1.5" fill="white"/>
+            <!-- Trend line -->
+            <path d="M8.5 22 L17.5 15 L26.5 10" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 2"/>
+            <!-- Top dots -->
+            <circle cx="8.5" cy="22" r="1.5" fill="white"/>
+            <circle cx="17.5" cy="15" r="1.5" fill="white"/>
+            <circle cx="26.5" cy="10" r="1.5" fill="white"/>
+          </svg>
+        </div>
+        <div class="logo-text">BI<span>30</span></div>
       </div>
-      <div class="task-card" id="t1" onclick="toggle('t1')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 1</div><div class="task-title">اختار المشروع + المجال</div><div class="task-note">كل شخص يحدد المجال اللي يحب يشتغل عليه (FinTech / HR / Sales / Education)</div></div></div>
-      <div class="task-card" id="t2" onclick="toggle('t2')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 2</div><div class="task-title">جمع البيانات اللازمة</div><div class="task-note">من Kaggle أو مصادر مفتوحة أو Mock Data</div></div></div>
-      <div class="task-card" id="t3" onclick="toggle('t3')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 3</div><div class="task-title">تنظيف البيانات في Power BI</div><div class="task-note">Format Columns, حذف Nulls, تحويل التواريخ</div></div></div>
-      <div class="task-card" id="t4" onclick="toggle('t4')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 4</div><div class="task-title">إنشاء أول Visualization أساسي</div><div class="task-note">Bar Chart, Line Chart أو أي Chart أساسي حسب المجال</div></div></div>
-      <div class="task-card" id="t5" onclick="toggle('t5')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 5</div><div class="task-title">إضافة Charts إضافية</div><div class="task-note">Pie Chart, Table, KPIs حسب البيانات</div></div></div>
-      <div class="task-card" id="t6" onclick="toggle('t6')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 6</div><div class="task-title">كتابة Insights</div><div class="task-note">نصوص قصيرة توضح أهم النتائج لكل Chart</div></div></div>
-      <div class="task-card" id="t7" onclick="toggle('t7')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 7</div><div class="task-title">مراجعة المشروع الأول</div><div class="task-note">Screenshots + PDF Portfolio جاهز</div></div></div>
+      <div class="hero-slogan">From Dashboard to Your First Freelance Client</div>
     </div>
 
-    <div class="week-section" data-week="2" id="week2">
-      <div class="week-header">
-        <div class="week-title" style="color:var(--w2)">مشروع 2 <span>Dashboard متقدم</span></div>
-        <div class="week-subtitle">الأيام 8–14 | تعمق أكتر في البيانات</div>
-        <div class="week-progress-bar"><div class="week-progress-fill" id="wp2"></div></div>
+    <!-- KPI Cards -->
+    <div class="kpi-section">
+      <div class="kpi-section-label">Your Progress Dashboard</div>
+      <div class="kpi-grid">
+        <div class="kpi-card blue">
+          <div class="kpi-card-icon">📊</div>
+          <div class="kpi-value blue" id="kpiPct">0%</div>
+          <div class="kpi-label">Completion Rate</div>
+        </div>
+        <div class="kpi-card teal">
+          <div class="kpi-card-icon">📅</div>
+          <div class="kpi-value teal" id="kpiDays">0</div>
+          <div class="kpi-label">Days Completed</div>
+        </div>
+        <div class="kpi-card purple">
+          <div class="kpi-card-icon">✅</div>
+          <div class="kpi-value purple" id="kpiTasks">0</div>
+          <div class="kpi-label">Tasks Done</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-card-icon">🔥</div>
+          <div class="kpi-value orange" id="kpiStreak">0</div>
+          <div class="kpi-label">Current Streak</div>
+        </div>
       </div>
-      <div class="task-card" id="t8" onclick="toggle('t8')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 8</div><div class="task-title">اختار المشروع الثاني</div><div class="task-note">نفس المجال أو مجال مختلف حسب رغبة كل شخص</div></div></div>
-      <div class="task-card" id="t9" onclick="toggle('t9')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 9</div><div class="task-title">جمع البيانات</div><div class="task-note">Dataset جاهز أو Mock Data</div></div></div>
-      <div class="task-card" id="t10" onclick="toggle('t10')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 10</div><div class="task-title">تنظيف البيانات</div><div class="task-note">Filter / Format / Calculated Columns</div></div></div>
-      <div class="task-card" id="t11" onclick="toggle('t11')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 11</div><div class="task-title">إنشاء Visualizations أساسية</div><div class="task-note">Trend Analysis, KPI Cards</div></div></div>
-      <div class="task-card" id="t12" onclick="toggle('t12')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 12</div><div class="task-title">Charts إضافية</div><div class="task-note">Interactive Filters, Comparison Charts</div></div></div>
-      <div class="task-card" id="t13" onclick="toggle('t13')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 13</div><div class="task-title">كتابة Insights</div><div class="task-note">توضيح النتائج + KPIs</div></div></div>
-      <div class="task-card" id="t14" onclick="toggle('t14')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 14</div><div class="task-title">مراجعة المشروع</div><div class="task-note">Screenshots + PDF Portfolio جاهز</div></div></div>
     </div>
 
-    <div class="week-section" data-week="3" id="week3">
-      <div class="week-header">
-        <div class="week-title" style="color:var(--w3)">Portfolio & Profile <span>تجهيز الحضور</span></div>
-        <div class="week-subtitle">الأيام 15–21 | اظهر شغلك للعالم</div>
-        <div class="week-progress-bar"><div class="week-progress-fill" id="wp3"></div></div>
+    <!-- Overall Progress -->
+    <div class="overall-card">
+      <div class="overall-top">
+        <div class="overall-title">Overall Progress</div>
+        <div class="overall-pct" id="overallPct">0%</div>
       </div>
-      <div class="task-card" id="t15" onclick="toggle('t15')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 15</div><div class="task-title">إنشاء حساب Upwork / Mostaqel / LinkedIn</div><div class="task-note">إضافة صورة وSkills: Power BI, Data Analysis</div></div></div>
-      <div class="task-card" id="t16" onclick="toggle('t16')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 16</div><div class="task-title">رفع مشاريع Portfolio</div><div class="task-note">PDF + Screenshots</div></div></div>
-      <div class="task-card" id="t17" onclick="toggle('t17')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 17</div><div class="task-title">تسجيل فيديو قصير لكل Dashboard</div><div class="task-note">1–2 دقيقة تشرح أهم KPIs وInsights</div></div></div>
-      <div class="task-card" id="t18" onclick="toggle('t18')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 18</div><div class="task-title">كتابة وصف البروفايل</div><div class="task-note">عنوان جذاب: "Power BI Dashboards for [المجال]"</div></div></div>
-      <div class="task-card" id="t19" onclick="toggle('t19')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 19</div><div class="task-title">تجهيز Gig / Packages</div><div class="task-note">3 باقات: Basic, Standard, Premium</div></div></div>
-      <div class="task-card" id="t20" onclick="toggle('t20')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 20</div><div class="task-title">البحث عن المشاريع المناسبة</div><div class="task-note">Upwork, Mostaqel, LinkedIn Groups</div></div></div>
-      <div class="task-card" id="t21" onclick="toggle('t21')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 21</div><div class="task-title">إرسال أول 3 Proposals مخصصة</div><div class="task-note">نص لكل Proposal يوضح القيمة + Screenshot</div></div></div>
+      <div class="prog-track">
+        <div class="prog-fill" id="overallFill"></div>
+      </div>
+      <div class="prog-milestones">
+        <span>Start</span>
+        <span>Week 1</span>
+        <span>Week 2</span>
+        <span>Week 3</span>
+        <span>Done ✓</span>
+      </div>
     </div>
 
-    <div class="week-section" data-week="4" id="week4">
-      <div class="week-header">
-        <div class="week-title" style="color:var(--w4)">أول عميل 🎯 <span>جذب ورفع السعر</span></div>
-        <div class="week-subtitle">الأيام 22–30 | لحظة الحقيقة</div>
-        <div class="week-progress-bar"><div class="week-progress-fill" id="wp4"></div></div>
+    <!-- Tasks -->
+    <div class="tasks-section">
+      <div class="week-tabs-wrap">
+        <div class="week-tabs" id="weekTabs">
+          <div class="week-tab active" data-week="1" onclick="switchWeek(1)">Week 1</div>
+          <div class="week-tab" data-week="2" onclick="switchWeek(2)">Week 2</div>
+          <div class="week-tab" data-week="3" onclick="switchWeek(3)">Week 3</div>
+          <div class="week-tab" data-week="4" onclick="switchWeek(4)">Week 4</div>
+        </div>
       </div>
-      <div class="task-card" id="t22" onclick="toggle('t22')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 22</div><div class="task-title">متابعة الردود على Proposals</div><div class="task-note">Reminder خفيف للعملاء المهتمين</div></div></div>
-      <div class="task-card" id="t23" onclick="toggle('t23')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 23</div><div class="task-title">إرسال Follow-up</div><div class="task-note">تأكيد الاهتمام + عرض Portfolio</div></div></div>
-      <div class="task-card" id="t24" onclick="toggle('t24')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 24</div><div class="task-title">تحسين Portfolio</div><div class="task-note">إضافة Insights أو تحسين Visuals</div></div></div>
-      <div class="task-card" id="t25" onclick="toggle('t25')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 25</div><div class="task-title">إرسال 3–4 Proposals جديدة يومياً</div><div class="task-note">لكل مشروع جديد على المنصات</div></div></div>
-      <div class="task-card" id="t26" onclick="toggle('t26')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 26</div><div class="task-title">مشاركة مشاريعك على LinkedIn / Twitter</div><div class="task-note">هتزيد فرص الحصول على أول عميل</div></div></div>
-      <div class="task-card" id="t27" onclick="toggle('t27')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 27</div><div class="task-title">تجهيز باقات Premium</div><div class="task-note">Dashboards + Predictive Analysis + Recommendations</div></div></div>
-      <div class="task-card" id="t28" onclick="toggle('t28')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 28</div><div class="task-title">تسجيل فيديو توضيحي لأفضل Dashboard</div><div class="task-note">رفعه على Portfolio وLinkedIn</div></div></div>
-      <div class="task-card" id="t29" onclick="toggle('t29')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 29</div><div class="task-title">متابعة العملاء المتفاعلين</div><div class="task-note">رسائل شخصية لكل Lead</div></div></div>
-      <div class="task-card" id="t30" onclick="toggle('t30')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#0a0e1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">اليوم 30</div><div class="task-title">🏆 مراجعة أعمال الشهر</div><div class="task-note">تحديد خطة الشهر القادم لرفع السعر وجذب عملاء أكثر</div></div></div>
+
+      <!-- ── WEEK 1 ── -->
+      <div class="week-section visible" data-week="1" id="week1">
+        <div class="week-header-card">
+          <div class="week-header-accent"></div>
+          <div class="week-header-inner">
+            <div class="week-header-row">
+              <div>
+                <div class="week-title">Project 1 — Basic Dashboard</div>
+                <div class="week-sub">Days 1–7 · Build your first Dashboard</div>
+              </div>
+              <div style="text-align:right">
+                <div class="week-pct-badge" id="wPct1">0%</div>
+                <div class="week-days-label">0/7 tasks</div>
+              </div>
+            </div>
+            <div class="week-prog-track"><div class="week-prog-fill" id="wp1"></div></div>
+          </div>
+        </div>
+        <div class="task-card" id="t1" onclick="toggle('t1')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 01</div><div class="task-title">اختار المشروع + المجال</div><div class="task-note">كل شخص يحدد المجال اللي يحب يشتغل عليه (FinTech / HR / Sales / Education)</div></div></div>
+        <div class="task-card" id="t2" onclick="toggle('t2')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 02</div><div class="task-title">جمع البيانات اللازمة</div><div class="task-note">من Kaggle أو مصادر مفتوحة أو Mock Data</div></div></div>
+        <div class="task-card" id="t3" onclick="toggle('t3')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 03</div><div class="task-title">تنظيف البيانات في Power BI</div><div class="task-note">Format Columns, حذف Nulls, تحويل التواريخ</div></div></div>
+        <div class="task-card" id="t4" onclick="toggle('t4')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 04</div><div class="task-title">إنشاء أول Visualization أساسي</div><div class="task-note">Bar Chart, Line Chart أو أي Chart أساسي حسب المجال</div></div></div>
+        <div class="task-card" id="t5" onclick="toggle('t5')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 05</div><div class="task-title">إضافة Charts إضافية</div><div class="task-note">Pie Chart, Table, KPIs حسب البيانات</div></div></div>
+        <div class="task-card" id="t6" onclick="toggle('t6')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 06</div><div class="task-title">كتابة Insights</div><div class="task-note">نصوص قصيرة توضح أهم النتائج لكل Chart</div></div></div>
+        <div class="task-card" id="t7" onclick="toggle('t7')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 07</div><div class="task-title">مراجعة المشروع الأول</div><div class="task-note">Screenshots + PDF Portfolio جاهز</div></div></div>
+      </div>
+
+      <!-- ── WEEK 2 ── -->
+      <div class="week-section" data-week="2" id="week2">
+        <div class="week-header-card">
+          <div class="week-header-accent"></div>
+          <div class="week-header-inner">
+            <div class="week-header-row">
+              <div>
+                <div class="week-title">Project 2 — Advanced Dashboard</div>
+                <div class="week-sub">Days 8–14 · Go deeper into the data</div>
+              </div>
+              <div style="text-align:right">
+                <div class="week-pct-badge" id="wPct2">0%</div>
+                <div class="week-days-label">0/7 tasks</div>
+              </div>
+            </div>
+            <div class="week-prog-track"><div class="week-prog-fill" id="wp2"></div></div>
+          </div>
+        </div>
+        <div class="task-card" id="t8"  onclick="toggle('t8')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 08</div><div class="task-title">اختار المشروع الثاني</div><div class="task-note">نفس المجال أو مجال مختلف حسب رغبة كل شخص</div></div></div>
+        <div class="task-card" id="t9"  onclick="toggle('t9')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 09</div><div class="task-title">جمع البيانات</div><div class="task-note">Dataset جاهز أو Mock Data</div></div></div>
+        <div class="task-card" id="t10" onclick="toggle('t10')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 10</div><div class="task-title">تنظيف البيانات</div><div class="task-note">Filter / Format / Calculated Columns</div></div></div>
+        <div class="task-card" id="t11" onclick="toggle('t11')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 11</div><div class="task-title">إنشاء Visualizations أساسية</div><div class="task-note">Trend Analysis, KPI Cards</div></div></div>
+        <div class="task-card" id="t12" onclick="toggle('t12')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 12</div><div class="task-title">Charts إضافية</div><div class="task-note">Interactive Filters, Comparison Charts</div></div></div>
+        <div class="task-card" id="t13" onclick="toggle('t13')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 13</div><div class="task-title">كتابة Insights</div><div class="task-note">توضيح النتائج + KPIs</div></div></div>
+        <div class="task-card" id="t14" onclick="toggle('t14')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 14</div><div class="task-title">مراجعة المشروع</div><div class="task-note">Screenshots + PDF Portfolio جاهز</div></div></div>
+      </div>
+
+      <!-- ── WEEK 3 ── -->
+      <div class="week-section" data-week="3" id="week3">
+        <div class="week-header-card">
+          <div class="week-header-accent"></div>
+          <div class="week-header-inner">
+            <div class="week-header-row">
+              <div>
+                <div class="week-title">Portfolio & Profile</div>
+                <div class="week-sub">Days 15–21 · Show your work to the world</div>
+              </div>
+              <div style="text-align:right">
+                <div class="week-pct-badge" id="wPct3">0%</div>
+                <div class="week-days-label">0/7 tasks</div>
+              </div>
+            </div>
+            <div class="week-prog-track"><div class="week-prog-fill" id="wp3"></div></div>
+          </div>
+        </div>
+        <div class="task-card" id="t15" onclick="toggle('t15')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 15</div><div class="task-title">إنشاء حساب Upwork / Mostaqel / LinkedIn</div><div class="task-note">إضافة صورة وSkills: Power BI, Data Analysis</div></div></div>
+        <div class="task-card" id="t16" onclick="toggle('t16')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 16</div><div class="task-title">رفع مشاريع Portfolio</div><div class="task-note">PDF + Screenshots</div></div></div>
+        <div class="task-card" id="t17" onclick="toggle('t17')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 17</div><div class="task-title">تسجيل فيديو قصير لكل Dashboard</div><div class="task-note">1–2 دقيقة تشرح أهم KPIs وInsights</div></div></div>
+        <div class="task-card" id="t18" onclick="toggle('t18')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 18</div><div class="task-title">كتابة وصف البروفايل</div><div class="task-note">عنوان جذاب: "Power BI Dashboards for [المجال]"</div></div></div>
+        <div class="task-card" id="t19" onclick="toggle('t19')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 19</div><div class="task-title">تجهيز Gig / Packages</div><div class="task-note">3 باقات: Basic, Standard, Premium</div></div></div>
+        <div class="task-card" id="t20" onclick="toggle('t20')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 20</div><div class="task-title">البحث عن المشاريع المناسبة</div><div class="task-note">Upwork, Mostaqel, LinkedIn Groups</div></div></div>
+        <div class="task-card" id="t21" onclick="toggle('t21')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 21</div><div class="task-title">إرسال أول 3 Proposals مخصصة</div><div class="task-note">نص لكل Proposal يوضح القيمة + Screenshot</div></div></div>
+      </div>
+
+      <!-- ── WEEK 4 ── -->
+      <div class="week-section" data-week="4" id="week4">
+        <div class="week-header-card">
+          <div class="week-header-accent"></div>
+          <div class="week-header-inner">
+            <div class="week-header-row">
+              <div>
+                <div class="week-title">First Client — Close the Deal</div>
+                <div class="week-sub">Days 22–30 · Moment of truth</div>
+              </div>
+              <div style="text-align:right">
+                <div class="week-pct-badge" id="wPct4">0%</div>
+                <div class="week-days-label">0/9 tasks</div>
+              </div>
+            </div>
+            <div class="week-prog-track"><div class="week-prog-fill" id="wp4"></div></div>
+          </div>
+        </div>
+        <div class="task-card" id="t22" onclick="toggle('t22')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 22</div><div class="task-title">متابعة الردود على Proposals</div><div class="task-note">Reminder خفيف للعملاء المهتمين</div></div></div>
+        <div class="task-card" id="t23" onclick="toggle('t23')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 23</div><div class="task-title">إرسال Follow-up</div><div class="task-note">تأكيد الاهتمام + عرض Portfolio</div></div></div>
+        <div class="task-card" id="t24" onclick="toggle('t24')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 24</div><div class="task-title">تحسين Portfolio</div><div class="task-note">إضافة Insights أو تحسين Visuals</div></div></div>
+        <div class="task-card" id="t25" onclick="toggle('t25')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 25</div><div class="task-title">إرسال 3–4 Proposals جديدة يومياً</div><div class="task-note">لكل مشروع جديد على المنصات</div></div></div>
+        <div class="task-card" id="t26" onclick="toggle('t26')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 26</div><div class="task-title">مشاركة مشاريعك على LinkedIn / Twitter</div><div class="task-note">هتزيد فرص الحصول على أول عميل</div></div></div>
+        <div class="task-card" id="t27" onclick="toggle('t27')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 27</div><div class="task-title">تجهيز باقات Premium</div><div class="task-note">Dashboards + Predictive Analysis + Recommendations</div></div></div>
+        <div class="task-card" id="t28" onclick="toggle('t28')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 28</div><div class="task-title">تسجيل فيديو توضيحي لأفضل Dashboard</div><div class="task-note">رفعه على Portfolio وLinkedIn</div></div></div>
+        <div class="task-card" id="t29" onclick="toggle('t29')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 29</div><div class="task-title">متابعة العملاء المتفاعلين</div><div class="task-note">رسائل شخصية لكل Lead</div></div></div>
+        <div class="task-card" id="t30" onclick="toggle('t30')"><div class="checkbox"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="task-info"><div class="task-day">Day 30</div><div class="task-title">🏆 مراجعة أعمال الشهر</div><div class="task-note">تحديد خطة الشهر القادم لرفع السعر وجذب عملاء أكثر</div></div></div>
+      </div>
+
+    </div><!-- /tasks-section -->
+
+    <!-- Footer Brand -->
+    <div class="footer-brand">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="12" rx="1"/><rect x="14" y="8" width="7" height="13" rx="1"/></svg>
+      Built by <a href="https://www.linkedin.com/in/nada-ali-data" target="_blank">&nbsp;Nada Ali&nbsp;</a> · Data Analyst & Power BI
     </div>
+
+  </div><!-- /home-view -->
+</div><!-- /viewHome -->
+
+
+<!-- ── ANALYTICS VIEW ── -->
+<div id="viewAnalytics" class="view">
+  <div class="analytics-view">
+    <div class="view-title">Analytics</div>
+    <div class="view-subtitle">Your 30-day performance insights</div>
+
+    <!-- Performance Score -->
+    <div class="perf-score-card">
+      <div class="perf-score-top">
+        <div class="perf-score-label">Performance Score</div>
+        <div class="perf-score-badge">Live</div>
+      </div>
+      <div class="perf-score-num" id="perfScore">0<span>/100</span></div>
+      <div class="perf-score-desc" id="perfDesc">Complete tasks to build your score →</div>
+    </div>
+
+    <!-- Metric Mini Row -->
+    <div class="metric-row">
+      <div class="metric-mini">
+        <div class="metric-mini-val blue" id="mCompRate">0%</div>
+        <div class="metric-mini-lbl">Completion Rate</div>
+      </div>
+      <div class="metric-mini">
+        <div class="metric-mini-val teal" id="mConsistency">0%</div>
+        <div class="metric-mini-lbl">Weekly Consistency</div>
+      </div>
+      <div class="metric-mini">
+        <div class="metric-mini-val purple" id="mRemaining">30</div>
+        <div class="metric-mini-lbl">Remaining</div>
+      </div>
+    </div>
+
+    <!-- Week Breakdown -->
+    <div class="section-header">Week Breakdown</div>
+    <div class="week-breakdown">
+      <div class="wb-row">
+        <div class="wb-dot w1"></div>
+        <div class="wb-label">Week 1 — Basic Dashboard</div>
+        <div class="wb-bar-wrap"><div class="wb-bar-fill w1" id="wb1"></div></div>
+        <div class="wb-pct" id="wbp1">0%</div>
+      </div>
+      <div class="wb-row">
+        <div class="wb-dot w2"></div>
+        <div class="wb-label">Week 2 — Advanced Dashboard</div>
+        <div class="wb-bar-wrap"><div class="wb-bar-fill w2" id="wb2"></div></div>
+        <div class="wb-pct" id="wbp2">0%</div>
+      </div>
+      <div class="wb-row">
+        <div class="wb-dot w3"></div>
+        <div class="wb-label">Week 3 — Portfolio & Profile</div>
+        <div class="wb-bar-wrap"><div class="wb-bar-fill w3" id="wb3"></div></div>
+        <div class="wb-pct" id="wbp3">0%</div>
+      </div>
+      <div class="wb-row">
+        <div class="wb-dot w4"></div>
+        <div class="wb-label">Week 4 — Close the Deal</div>
+        <div class="wb-bar-wrap"><div class="wb-bar-fill w4" id="wb4"></div></div>
+        <div class="wb-pct" id="wbp4">0%</div>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="section-header">Pro Tips</div>
+    <div class="tips-card">
+      <div class="tips-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Power BI Tips
+      </div>
+      <div class="tip-row">كل Dashboard لازم يعطي Insight عملي وقابل للقرار</div>
+      <div class="tip-row">Proposals لازم تكون مخصصة لكل عميل ومش كوبي-باستة</div>
+      <div class="tip-row">مشاركة مشاريعك على LinkedIn مهم جدًا</div>
+      <div class="tip-row">Data Sources: Kaggle, Microsoft Sample Data, Mock Data</div>
+    </div>
+
+    <!-- Footer Brand -->
+    <div class="footer-brand" style="margin-top:24px">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="12" rx="1"/><rect x="14" y="8" width="7" height="13" rx="1"/></svg>
+      Built by <a href="https://www.linkedin.com/in/nada-ali-data" target="_blank">&nbsp;Nada Ali&nbsp;</a> · Data Analyst & Power BI
+    </div>
+
   </div>
+</div><!-- /viewAnalytics -->
 
-  <div id="statsView" class="stats-view">
-    <div style="font-size:17px;font-weight:700;margin-bottom:14px;padding-top:6px;">📊 إحصائياتك</div>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-num" id="sDone" style="color:var(--accent3)">0</div><div class="stat-label">مهمة مكتملة ✅</div></div>
-      <div class="stat-card"><div class="stat-num" id="sRemain" style="color:var(--accent)">30</div><div class="stat-label">متبقية 🔥</div></div>
+
+<!-- ── ABOUT VIEW ── -->
+<div id="viewAbout" class="view">
+  <div class="about-view">
+    <div class="view-title">About</div>
+    <div class="view-subtitle">The person behind BI30</div>
+
+    <!-- Profile Card -->
+    <div class="profile-card">
+      <div class="profile-avatar">N</div>
+      <div class="profile-name">Nada Ali</div>
+      <div class="profile-title">Data Analyst · Power BI Specialist</div>
+      <div class="profile-bio">
+        Helping businesses turn raw data into clear, actionable insights through dashboards and reporting systems.
+      </div>
+      <div class="profile-tags">
+        <span class="profile-tag">Power BI</span>
+        <span class="profile-tag">Data Analysis</span>
+        <span class="profile-tag">DAX</span>
+        <span class="profile-tag">Dashboards</span>
+        <span class="profile-tag">Freelance</span>
+      </div>
     </div>
-    <div class="week-stat"><div class="week-stat-icon" style="background:rgba(245,158,11,0.15)">📈</div><div class="week-stat-info"><div class="week-stat-name" style="color:var(--w1)">الأسبوع 1 – Dashboard أساسي</div><div class="week-stat-bar"><div class="week-stat-fill" id="ws1" style="background:var(--w1)"></div></div></div><div class="week-stat-pct" id="wsp1">0%</div></div>
-    <div class="week-stat"><div class="week-stat-icon" style="background:rgba(139,92,246,0.15)">🚀</div><div class="week-stat-info"><div class="week-stat-name" style="color:var(--w2)">الأسبوع 2 – Dashboard متقدم</div><div class="week-stat-bar"><div class="week-stat-fill" id="ws2" style="background:var(--w2)"></div></div></div><div class="week-stat-pct" id="wsp2">0%</div></div>
-    <div class="week-stat"><div class="week-stat-icon" style="background:rgba(16,185,129,0.15)">💼</div><div class="week-stat-info"><div class="week-stat-name" style="color:var(--w3)">الأسبوع 3 – Portfolio & Profile</div><div class="week-stat-bar"><div class="week-stat-fill" id="ws3" style="background:var(--w3)"></div></div></div><div class="week-stat-pct" id="wsp3">0%</div></div>
-    <div class="week-stat"><div class="week-stat-icon" style="background:rgba(239,68,68,0.15)">🎯</div><div class="week-stat-info"><div class="week-stat-name" style="color:var(--w4)">الأسبوع 4 – جذب أول عميل</div><div class="week-stat-bar"><div class="week-stat-fill" id="ws4" style="background:var(--w4)"></div></div></div><div class="week-stat-pct" id="wsp4">0%</div></div>
-    <div class="tips-section">
-      <div class="tips-title">💡 نصايح مهمة</div>
-      <div class="tip-item">كل Dashboard لازم يعطي Insight عملي وقابل للقرار</div>
-      <div class="tip-item">Proposals لازم تكون مخصصة لكل عميل ومش كوبي-باستة</div>
-      <div class="tip-item">مشاركة مشاريعك على LinkedIn مهم جدًا</div>
-      <div class="tip-item">Data Sources: Kaggle, Microsoft Sample Data, Mock Data</div>
+
+    <!-- Work With Me CTA -->
+    <a href="https://www.linkedin.com/in/nada-ali-data" target="_blank" class="cta-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4C2.9 7 2 7.9 2 9v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/><polyline points="22,7 12,13 2,7"/></svg>
+      Work With Me
+    </a>
+
+    <!-- Contact Buttons -->
+    <div class="contact-section">
+      <a href="https://www.linkedin.com/in/nada-ali-data" target="_blank" class="contact-btn">
+        <div class="contact-btn-icon linkedin-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#0A66C2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </div>
+        <div class="contact-btn-info">
+          <div class="contact-btn-label">LinkedIn</div>
+          <div class="contact-btn-sub">linkedin.com/in/nada-ali-data</div>
+        </div>
+        <div class="contact-btn-arrow">›</div>
+      </a>
+
+      <a href="https://github.com/nadaali200136-sys" target="_blank" class="contact-btn">
+        <div class="contact-btn-icon github-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#E6EDF3"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        </div>
+        <div class="contact-btn-info">
+          <div class="contact-btn-label">GitHub</div>
+          <div class="contact-btn-sub">github.com/nadaali200136-sys</div>
+        </div>
+        <div class="contact-btn-arrow">›</div>
+      </a>
+
+      <a href="https://wa.me/201144166546" target="_blank" class="contact-btn">
+        <div class="contact-btn-icon phone-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#25D366"><path d="M20.52 3.48A11.82 11.82 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.18 1.6 6L0 24l6.23-1.58A11.95 11.95 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.21-3.48-8.52zM12 22c-1.85 0-3.68-.5-5.27-1.44l-.38-.22-3.7.94.99-3.58-.25-.4A10 10 0 0 1 2 12C2 6.48 6.48 2 12 2c2.67 0 5.19 1.04 7.08 2.92A9.96 9.96 0 0 1 22 12c0 5.52-4.48 10-10 10zm5.45-7.6c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.78.97-.96 1.17-.17.2-.35.22-.65.07-.3-.14-1.26-.46-2.4-1.48-.89-.8-1.49-1.78-1.67-2.08-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.68-1.64-.93-2.24-.24-.58-.49-.5-.68-.51h-.58c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.09 4.49.71.31 1.27.49 1.7.63.72.23 1.37.2 1.89.12.58-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"/></svg>
+        </div>
+        <div class="contact-btn-info">
+          <div class="contact-btn-label">WhatsApp / Phone</div>
+          <div class="contact-btn-sub">+20 114 416 6546</div>
+        </div>
+        <div class="contact-btn-arrow">›</div>
+      </a>
     </div>
+
+    <!-- About App Note -->
+    <div class="about-footer-note">
+      <strong style="color:var(--text-dim);display:block;margin-bottom:4px">About BI30</strong>
+      A 30-day structured program to build a Power BI portfolio and land your first freelance client.
+      Built as a PWA — install it on your home screen for the best experience.
+    </div>
+
+    <!-- Footer Brand -->
+    <div class="footer-brand" style="margin-top:20px">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="12" rx="1"/><rect x="14" y="8" width="7" height="13" rx="1"/></svg>
+      Built by Nada Ali · BI30 v2.0
+    </div>
+
   </div>
-</div>
+</div><!-- /viewAbout -->
 
-<div class="bottom-nav">
-  <button class="nav-btn active" id="navTasks" onclick="switchView('tasks')">
-    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-    المهام
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="navHome" onclick="switchView('home')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    Home
+    <div class="nav-indicator"></div>
   </button>
-  <button class="nav-btn" id="navStats" onclick="switchView('stats')">
+  <button class="nav-btn" id="navAnalytics" onclick="switchView('analytics')">
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-    إحصائيات
+    Analytics
+    <div class="nav-indicator"></div>
   </button>
+  <button class="nav-btn" id="navAbout" onclick="switchView('about')">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+    About
+    <div class="nav-indicator"></div>
+  </button>
+</nav>
+
+<!-- BI Watermark -->
+<div class="footer-watermark">
+  <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="8" width="6" height="18" rx="1" fill="white"/>
+    <rect x="10" y="4" width="6" height="22" rx="1" fill="white"/>
+    <rect x="18" y="1" width="6" height="25" rx="1" fill="white"/>
+  </svg>
 </div>
 
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
 <script>
-  // PWA Install prompt
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    document.getElementById('installBanner').classList.remove('hidden');
+// ── PWA Install ──────────────────────────
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').classList.remove('hidden');
+});
+window.addEventListener('appinstalled', () => closeBanner());
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; closeBanner(); });
+  }
+}
+function closeBanner() { document.getElementById('installBanner').classList.add('hidden'); }
+
+// ── Service Worker ───────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('BI30 SW ready'))
+      .catch(e => console.warn('SW error', e));
   });
-  window.addEventListener('appinstalled', () => { closeBanner(); });
+}
 
-  function installApp() {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => { deferredPrompt = null; closeBanner(); });
-    }
+// ── Data ─────────────────────────────────
+const STORAGE_KEY = 'bi30_saas_v1';
+const weekTasks = {
+  1: [1,2,3,4,5,6,7],
+  2: [8,9,10,11,12,13,14],
+  3: [15,16,17,18,19,20,21],
+  4: [22,23,24,25,26,27,28,29,30]
+};
+let done = {};
+let doneDates = {};
+
+// ── Load ─────────────────────────────────
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    done      = saved.done      || {};
+    doneDates = saved.doneDates || {};
+  } catch(e) {
+    done = {}; doneDates = {};
   }
-  function closeBanner() { document.getElementById('installBanner').classList.add('hidden'); }
-
-  // Register Service Worker
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').then(r => console.log('SW registered')).catch(e => console.log('SW error', e));
-    });
+  for (let i = 1; i <= 30; i++) {
+    if (done[i]) document.getElementById('t'+i)?.classList.add('done');
   }
+  updateAll();
+}
 
-  // App logic
-  const STORAGE_KEY = 'pbi30days_v2';
-  const weekTasks = { 1:[1,2,3,4,5,6,7], 2:[8,9,10,11,12,13,14], 3:[15,16,17,18,19,20,21], 4:[22,23,24,25,26,27,28,29,30] };
-  let done = {};
+// ── Save ─────────────────────────────────
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ done, doneDates }));
+}
 
-  function load() {
-    try { done = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { done = {}; }
-    for (let i=1; i<=30; i++) { if (done[i]) document.getElementById('t'+i)?.classList.add('done'); }
-    updateProgress();
+// ── Toggle Task ──────────────────────────
+function toggle(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('done');
+  const num = parseInt(id.replace('t',''));
+  done[num] = card.classList.contains('done');
+  if (done[num]) {
+    doneDates[num] = new Date().toDateString();
+  } else {
+    delete doneDates[num];
   }
+  save();
+  updateAll();
 
-  function toggle(id) {
-    const card = document.getElementById(id);
-    card.classList.toggle('done');
-    done[parseInt(id.replace('t',''))] = card.classList.contains('done');
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(done));
-    updateProgress();
+  // Check Day 30 completion
+  if (done[30] && Object.values(done).filter(Boolean).length === 30) {
+    setTimeout(() => showSuccess(), 800);
   }
+}
 
-  function updateProgress() {
-    const completed = Object.values(done).filter(Boolean).length;
-    document.getElementById('overallBadge').textContent = completed + ' / 30';
-    const pct = Math.round(completed/30*100);
-    document.getElementById('overallPct').textContent = pct + '%';
-    document.getElementById('overallFill').style.width = pct + '%';
-    [1,2,3,4].forEach(w => {
-      const tasks = weekTasks[w];
-      const d = tasks.filter(n => done[n]).length;
-      const p = Math.round(d/tasks.length*100);
-      document.getElementById('wp'+w).style.width = p + '%';
-      document.getElementById('ws'+w).style.width = p + '%';
-      document.getElementById('wsp'+w).textContent = p + '%';
-    });
-    document.getElementById('sDone').textContent = completed;
-    document.getElementById('sRemain').textContent = 30 - completed;
+// ── Streak Calculation ───────────────────
+function calcStreak() {
+  const dates = Object.values(doneDates);
+  if (!dates.length) return 0;
+  const unique = [...new Set(dates)].map(d => new Date(d).getTime()).sort((a,b) => b-a);
+  const today  = new Date().setHours(0,0,0,0);
+  const ONE_DAY = 86400000;
+  let streak = 0;
+  let check  = today;
+  for (const d of unique) {
+    const day = new Date(d).setHours(0,0,0,0);
+    if (day === check || (streak === 0 && day === check - ONE_DAY)) {
+      streak++;
+      check = day - ONE_DAY;
+    } else if (day < check) break;
   }
+  return streak;
+}
 
-  function switchWeek(w) {
-    document.querySelectorAll('.week-section').forEach(s => s.classList.remove('visible'));
-    document.getElementById('week'+w).classList.add('visible');
-    document.querySelectorAll('.week-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector('.week-tab[data-week="'+w+'"]').classList.add('active');
-  }
+// ── Update All UI ────────────────────────
+function updateAll() {
+  const completed = Object.values(done).filter(Boolean).length;
+  const pct = Math.round(completed / 30 * 100);
+  const streak = calcStreak();
 
-  function switchView(v) {
-    document.getElementById('tasksView').style.display = v==='tasks' ? 'block' : 'none';
-    const sv = document.getElementById('statsView');
-    v==='stats' ? sv.classList.add('visible') : sv.classList.remove('visible');
-    document.getElementById('weekTabs').style.display = v==='tasks' ? 'flex' : 'none';
-    document.getElementById('navTasks').classList.toggle('active', v==='tasks');
-    document.getElementById('navStats').classList.toggle('active', v==='stats');
-  }
+  // KPI Cards
+  document.getElementById('kpiPct').textContent    = pct + '%';
+  document.getElementById('kpiDays').textContent   = completed;
+  document.getElementById('kpiTasks').textContent  = completed;
+  document.getElementById('kpiStreak').textContent = streak;
 
-  load();
+  // Overall bar
+  document.getElementById('overallPct').textContent      = pct + '%';
+  document.getElementById('overallFill').style.width     = pct + '%';
+
+  // Week progress
+  [1,2,3,4].forEach(w => {
+    const tasks = weekTasks[w];
+    const d = tasks.filter(n => done[n]).length;
+    const p = Math.round(d / tasks.length * 100);
+    document.getElementById('wp'+w).style.width   = p + '%';
+    document.getElementById('wPct'+w).textContent = p + '%';
+    // analytics wb
+    document.getElementById('wb'+w).style.width   = p + '%';
+    document.getElementById('wbp'+w).textContent  = p + '%';
+  });
+
+  // Analytics metrics
+  const weeksStarted = [1,2,3,4].filter(w => weekTasks[w].some(n => done[n])).length;
+  const consistency  = Math.round(weeksStarted / 4 * 100);
+  const perfScore    = Math.min(100, Math.round(pct * 0.7 + consistency * 0.3));
+
+  document.getElementById('mCompRate').textContent   = pct + '%';
+  document.getElementById('mConsistency').textContent = consistency + '%';
+  document.getElementById('mRemaining').textContent  = 30 - completed;
+  document.getElementById('perfScore').textContent   = perfScore;
+
+  const perfDesc = document.getElementById('perfDesc');
+  if (perfScore >= 80) perfDesc.textContent = 'Excellent execution — you\'re client-ready ★';
+  else if (perfScore >= 50) perfDesc.textContent = 'Good progress — keep the momentum →';
+  else if (perfScore > 0)  perfDesc.textContent = 'Getting started — consistency is key →';
+  else                      perfDesc.textContent = 'Complete tasks to build your score →';
+}
+
+// ── Switch Week Tab ──────────────────────
+function switchWeek(w) {
+  document.querySelectorAll('.week-section').forEach(s => s.classList.remove('visible'));
+  document.getElementById('week'+w).classList.add('visible');
+  document.querySelectorAll('.week-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.week-tab[data-week="'+w+'"]').classList.add('active');
+}
+
+// ── Switch View ──────────────────────────
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+  const map = { home:'viewHome', analytics:'viewAnalytics', about:'viewAbout' };
+  const navMap = { home:'navHome', analytics:'navAnalytics', about:'navAbout' };
+
+  document.getElementById(map[v]).classList.add('active');
+  document.getElementById(navMap[v]).classList.add('active');
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Success Screen ───────────────────────
+function showSuccess() {
+  document.getElementById('successOverlay').classList.add('show');
+}
+function dismissSuccess() {
+  document.getElementById('successOverlay').classList.remove('show');
+}
+
+// ── Init ─────────────────────────────────
+load();
 </script>
 </body>
 </html>

@@ -1,14 +1,15 @@
 {
-  "name": "خطة 30 يوم Power BI",
-  "short_name": "خطة 30 يوم",
-  "description": "تابعي تقدمك في خطة Power BI 30 يوم",
-  "start_url": "/",
+  "name": "BI30 — Power BI 30-Day Program",
+  "short_name": "BI30",
+  "description": "From Dashboard to Your First Freelance Client — 30-day Power BI productivity tracker",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0a0e1a",
-  "theme_color": "#0a0e1a",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
   "orientation": "portrait",
-  "lang": "ar",
-  "dir": "rtl",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "icon-192.png",
@@ -22,5 +23,7 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["productivity", "utilities", "business"],
+  "screenshots": []
 }
